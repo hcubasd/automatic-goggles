@@ -8,8 +8,8 @@
   --teal: #179299;
   --peach: #fe640b;
   --text: #4c4f69;
-  --subtext: #5c5f77;
-  --muted: #6c6f85;
+  --subtext-1: #5c5f77;
+  --subtext-0: #6c6f85;
   --overlay-2: #7c7f93;
   --overlay-1: #8c8fa1;
   --overlay-0: #9ca0b0;
@@ -59,7 +59,7 @@ main {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--overlay-2);
+  color: var(--subtext-1);
 }
 
 .workspace {
@@ -86,7 +86,7 @@ main {
   display: flex;
   gap: 10px;
   align-items: center;
-  color: var(--peach);
+  color: var(--subtext-1);
 }
 
 .panel-label::after {
@@ -112,14 +112,14 @@ main {
 }
 
 .data-table th {
-  color: var(--overlay-2);
+  color: var(--subtext-1);
   font-size: 10px;
   text-transform: uppercase;
   border-bottom: 2px solid var(--surface-2);
 }
 
 .data-table td:first-child {
-  color: var(--overlay-1);
+  color: var(--subtext-0);
   font-size: 11px;
 }
 
@@ -152,7 +152,7 @@ input:focus {
   width: 100%;
   text-align: left;
   border: 1px dashed var(--overlay-0);
-  color: var(--subtext);
+  color: var(--subtext-1);
   background: transparent;
   padding: 9px 12px;
   font-size: 11px;
@@ -228,7 +228,7 @@ input:focus {
   margin-left: auto;
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--subtext);
+  color: var(--subtext-1);
 }
 
 .results {
@@ -256,7 +256,7 @@ input:focus {
 }
 
 .results-meta {
-  color: var(--peach);
+  color: var(--subtext-0);
   font-family: var(--mono);
   font-size: 11px;
 }
@@ -284,7 +284,7 @@ input:focus {
 }
 
 .alloc-table th {
-  color: var(--overlay-2);
+  color: var(--subtext-1);
   font-size: 10px;
   text-transform: uppercase;
   border-bottom: 2px solid var(--surface-2);
@@ -307,6 +307,9 @@ input:focus {
   padding: 3px 8px;
   font-size: 10px;
   font-weight: 600;
+  background: rgba(64, 160, 43, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(64, 160, 43, 0.22);
 }
 
 .item-chip {
@@ -323,13 +326,6 @@ input:focus {
   color: var(--peach);
 }
 
-.vc-0 { background: rgba(210, 15, 57, 0.16); color: var(--red); border: 1px solid rgba(210, 15, 57, 0.28); }
-.vc-1 { background: rgba(64, 160, 43, 0.16); color: var(--green); border: 1px solid rgba(64, 160, 43, 0.28); }
-.vc-2 { background: rgba(223, 142, 29, 0.18); color: var(--yellow); border: 1px solid rgba(223, 142, 29, 0.3); }
-.vc-3 { background: rgba(30, 102, 245, 0.16); color: var(--blue); border: 1px solid rgba(30, 102, 245, 0.28); }
-.vc-4 { background: rgba(234, 118, 203, 0.16); color: var(--pink); border: 1px solid rgba(234, 118, 203, 0.28); }
-.vc-5 { background: rgba(23, 146, 153, 0.16); color: var(--teal); border: 1px solid rgba(23, 146, 153, 0.28); }
-
 .seq-viz {
   margin-top: 32px;
   border-top: 1px solid var(--surface-1);
@@ -339,7 +335,7 @@ input:focus {
 .seq-viz h4 {
   font-size: 13px;
   margin-bottom: 10px;
-  color: var(--subtext);
+  color: var(--subtext-1);
 }
 
 .seq-bar {
