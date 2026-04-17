@@ -252,13 +252,32 @@ async function logOptimizationRun(payload) {
 }
 
 function createRunPayload(items, vehicles, config, status, extras = {}) {
+  const resultTrips = extras.resultTrips ?? null;
+  const totalRealWeight = resultTrips
+    ? resultTrips.reduce((sum, trip) => sum + trip.w, 0)
+    : null;
+  const totalChargedWeight = resultTrips
+    ? resultTrips.reduce((sum, trip) => sum + trip.c, 0)
+    : null;
+
   return {
     objective,
     status,
+    has_solution: status === "success",
+    num_items: items.length,
+    num_vehicle_classes: vehicles.length,
+    num_trips: resultTrips ? resultTrips.length : null,
+    weight_active: config.useWeight,
+    length_active: config.useLength,
+    units_active: config.useUnits,
+    min_charge_active: config.useMinCharge,
+    fleet_active: config.useFleet,
+    total_real_weight: totalRealWeight,
+    total_charged_weight: totalChargedWeight,
     input_items: items,
     input_vehicles: vehicles,
     effective_config: config,
-    result_trips: extras.resultTrips ?? null,
+    result_trips: resultTrips,
     objective_value: extras.objectiveValue ?? null,
     states_explored: extras.statesExplored ?? null,
     app_version: APP_VERSION
