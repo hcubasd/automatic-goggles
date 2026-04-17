@@ -1,6 +1,9 @@
 let objective = "cost";
 let itemId = 0;
 let vehicleId = 0;
+const SUPABASE_URL = "https://lbzpelfsuadhrmyhjzgh.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fctgVRED2YyUZOSUCNT25A_C26zFdKf";
+const APP_VERSION = "github-pages-direct-write";
 
 const seedItems = [
   { w: 10000, l: 1.5 },
@@ -226,6 +229,42 @@ function buildTrips(items, vehicles, config) {
   return tripsFrom;
 }
 
+async function logOptimizationRun(payload) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/optimization_runs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Falha ao registrar execução no Supabase:", errorText);
+    }
+  } catch (error) {
+    console.error("Erro de rede ao registrar execução no Supabase:", error);
+  }
+}
+
+function createRunPayload(items, vehicles, config, status, extras = {}) {
+  return {
+    objective,
+    status,
+    input_items: items,
+    input_vehicles: vehicles,
+    effective_config: config,
+    result_trips: extras.resultTrips ?? null,
+    objective_value: extras.objectiveValue ?? null,
+    states_explored: extras.statesExplored ?? null,
+    app_version: APP_VERSION
+  };
+}
+
 function solve() {
   const items = readItems();
   const vehicles = readVehicles();
@@ -305,6 +344,11 @@ function solve() {
   if (!finalKey) {
     results.innerHTML = '<div class="error-box">Nenhuma solução viável para a configuração informada.</div>';
     status.textContent = "sem solução";
+    void logOptimizationRun(
+      createRunPayload(items, vehicles, analysis.config, "infeasible", {
+        statesExplored: best.size
+      })
+    );
     return;
   }
 
@@ -319,6 +363,13 @@ function solve() {
 
   renderResults(results, items, vehicles, trips, bestObjectiveValue, analysis.config);
   status.textContent = `${trips.length} viagens · ${best.size.toLocaleString("pt-BR")} estados explorados`;
+  void logOptimizationRun(
+    createRunPayload(items, vehicles, analysis.config, "success", {
+      resultTrips: trips,
+      objectiveValue: bestObjectiveValue,
+      statesExplored: best.size
+    })
+  );
 }
 
 function renderResults(results, items, vehicles, trips, objectiveValue, config) {
