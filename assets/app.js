@@ -11,8 +11,8 @@ const seedItems = [
 ];
 
 const seedVehicles = [
-  { name: "Classe_A", W: 15000, L: 5.0, wmin: 10000, gap: 0.2, fleet: 10 },
-  { name: "Classe_B", W: 35000, L: 14.0, wmin: 25000, gap: 0.5, fleet: 2 }
+  { name: "Classe_A", maxUnits: 1, W: 15000, L: 5.0, wmin: 10000, gap: 0.2, fleet: 10 },
+  { name: "Classe_B", maxUnits: 3, W: 35000, L: 14.0, wmin: 25000, gap: 0.5, fleet: 2 }
 ];
 
 function renumber(bodyId) {
@@ -35,13 +35,14 @@ function addItem(weight = "", length = "") {
   renumber("item-body");
 }
 
-function addVehicle(name = "", maxWeight = "", maxLength = "", minCharge = "", spacing = "", fleet = "") {
+function addVehicle(name = "", maxUnits = "", maxWeight = "", maxLength = "", minCharge = "", spacing = "", fleet = "") {
   const id = ++vehicleId;
   const row = document.createElement("tr");
   row.id = `vehicle-row-${id}`;
   row.innerHTML = `
     <td></td>
     <td><input type="text" value="${name}" id="vn-${id}"></td>
+    <td><input type="number" min="1" step="1" value="${maxUnits}" id="vu-${id}"></td>
     <td><input type="number" value="${maxWeight}" id="vW-${id}"></td>
     <td><input type="number" value="${minCharge}" id="vw-${id}"></td>
     <td><input type="number" step="0.1" value="${maxLength}" id="vL-${id}"></td>
@@ -87,6 +88,7 @@ function readVehicles() {
     return {
       idx: index,
       name: document.getElementById(`vn-${id}`).value || `Classe_${index + 1}`,
+      maxUnits: parseInt(document.getElementById(`vu-${id}`).value, 10) || 0,
       W: parseFloat(document.getElementById(`vW-${id}`).value) || 0,
       L: parseFloat(document.getElementById(`vL-${id}`).value) || 0,
       wmin: parseFloat(document.getElementById(`vw-${id}`).value) || 0,
@@ -111,12 +113,13 @@ function buildTrips(items, vehicles) {
       vehicles.forEach((vehicle, vehicleIdx) => {
         const occupiedLength = sumL + (nItems > 1 ? (nItems - 1) * vehicle.gap : 0);
 
-        if (sumW <= vehicle.W && occupiedLength <= vehicle.L) {
+        if (nItems <= vehicle.maxUnits && sumW <= vehicle.W && occupiedLength <= vehicle.L) {
           tripsFrom[start].push({
             end,
             vehicleIdx,
             totalW: sumW,
             totalL: occupiedLength,
+            totalUnits: nItems,
             charged: Math.max(sumW, vehicle.wmin)
           });
         }
@@ -177,6 +180,7 @@ function solve() {
             start: position,
             end: trip.end,
             vIdx: vehicleIndex,
+            units: trip.totalUnits,
             w: trip.totalW,
             l: trip.totalL,
             c: trip.charged
@@ -243,6 +247,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
         <th>#</th>
         <th>Veiculo</th>
         <th>Cargas</th>
+        <th class="num">Unidades</th>
         <th class="num">Peso Real</th>
         <th class="num">Comprimento Ocupado</th>
         <th class="num">Peso Cobrado</th>
@@ -261,6 +266,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
       <td>${index + 1}</td>
       <td><span class="vehicle-badge vc-${trip.vIdx % 5}">${vehicles[trip.vIdx].name}</span></td>
       <td>${items.slice(trip.start, trip.end + 1).map((item) => `<span class="item-chip">${item.seq}</span>`).join("")}</td>
+      <td class="num">${trip.units}</td>
       <td class="num">${trip.w.toLocaleString("pt-BR")}</td>
       <td class="num">${trip.l.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
       <td class="num" style="color:${trip.c > trip.w ? "var(--danger)" : "inherit"}">${trip.c.toLocaleString("pt-BR")}</td>
@@ -273,6 +279,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
   totalRow.innerHTML = `
     <td></td>
     <td>Total</td>
+    <td></td>
     <td></td>
     <td class="num">${totalW.toLocaleString("pt-BR")}</td>
     <td></td>
@@ -318,4 +325,4 @@ document.body.addEventListener("click", (event) => {
 });
 
 seedItems.forEach((item) => addItem(item.w, item.l));
-seedVehicles.forEach((vehicle) => addVehicle(vehicle.name, vehicle.W, vehicle.L, vehicle.wmin, vehicle.gap, vehicle.fleet));
+seedVehicles.forEach((vehicle) => addVehicle(vehicle.name, vehicle.maxUnits, vehicle.W, vehicle.L, vehicle.wmin, vehicle.gap, vehicle.fleet));

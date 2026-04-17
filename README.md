@@ -14,8 +14,8 @@ compute an exact allocation.
 The current interface supports:
 
 - ordered cargo input with weight and length
-- heterogeneous vehicle classes with weight limit, length limit, minimum charge,
-  spacing, and fleet size
+- heterogeneous vehicle classes with unit limit, weight limit, length limit,
+  minimum charge, spacing, and fleet size
 - exact dynamic programming with explicit fleet-consumption state
 - two objectives: minimum total charged weight or minimum number of vehicles
 - reconstruction and visualization of the optimal partition
