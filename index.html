@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automatic Goggles</title>
+  <meta name="description" content="Demonstrador do algoritmo de particionamento sequencial com frota limitada.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <h1>Automatic Goggles</h1>
+      <p>Demonstrador web para alocacao sequencial com frota limitada</p>
+    </div>
+    <span class="header-tag">GitHub Pages static app</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Pseudo-produto</p>
+        <h2>Particione uma sequencia ordenada de cargas em blocos contiguos e aloque cada bloco ao melhor veiculo disponivel.</h2>
+        <p>
+          Esta interface implementa a versao completa da programacao dinamica discutida na pesquisa:
+          a sequencia e coberta da esquerda para a direita, com controle explicito do consumo da frota.
+        </p>
+      </div>
+      <div class="hero-note">
+        <p class="hero-note-label">Modelo operacional</p>
+        <ul>
+          <li>sequencia fixa de unidades</li>
+          <li>blocos contiguos</li>
+          <li>frota heterogenea limitada</li>
+          <li>minimizacao de custo ou de viagens</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel">
+        <div class="panel-label">Sequencia de Cargas</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Peso</th>
+              <th>Comprimento</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="item-body"></tbody>
+        </table>
+        <button class="btn-row-add" type="button" id="add-item">+ adicionar carga</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">Frota Disponivel</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Peso Max.</th>
+              <th>Cobranca Min.</th>
+              <th>Comp. Max.</th>
+              <th>Espacamento</th>
+              <th>Frota</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="vehicle-body"></tbody>
+        </table>
+        <button class="btn-row-add" type="button" id="add-vehicle">+ adicionar veiculo</button>
+      </div>
+    </section>
+
+    <section class="action-bar">
+      <div class="objective-toggle" aria-label="Objetivo">
+        <button class="obj-btn active" type="button" data-objective="cost">Menor Custo</button>
+        <button class="obj-btn" type="button" data-objective="vehicles">Menos Veiculos</button>
+      </div>
+      <button class="btn-solve" type="button" id="solve">Calcular Alocacao</button>
+      <span class="status-msg" id="status-msg">pronto para calcular</span>
+    </section>
+
+    <section class="results" id="results"></section>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
