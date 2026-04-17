@@ -98,7 +98,95 @@ function readVehicles() {
   });
 }
 
-function buildTrips(items, vehicles) {
+function hasNegative(values) {
+  return values.some((value) => value < 0);
+}
+
+function hasAnyPositive(values) {
+  return values.some((value) => value > 0);
+}
+
+function hasAllPositive(values) {
+  return values.every((value) => value > 0);
+}
+
+function analyzeProblem(items, vehicles) {
+  if (!items.length || !vehicles.length) {
+    return {
+      valid: false,
+      message: "Informe ao menos uma carga e uma classe de veículo."
+    };
+  }
+
+  const itemWeights = items.map((item) => item.w);
+  const itemLengths = items.map((item) => item.l);
+  const vehicleUnits = vehicles.map((vehicle) => vehicle.maxUnits);
+  const vehicleWeights = vehicles.map((vehicle) => vehicle.W);
+  const vehicleMinCharges = vehicles.map((vehicle) => vehicle.wmin);
+  const vehicleLengths = vehicles.map((vehicle) => vehicle.L);
+  const vehicleGaps = vehicles.map((vehicle) => vehicle.gap);
+  const vehicleFleet = vehicles.map((vehicle) => vehicle.fleet);
+
+  if (
+    hasNegative(itemWeights) ||
+    hasNegative(itemLengths) ||
+    hasNegative(vehicleUnits) ||
+    hasNegative(vehicleWeights) ||
+    hasNegative(vehicleMinCharges) ||
+    hasNegative(vehicleLengths) ||
+    hasNegative(vehicleGaps) ||
+    hasNegative(vehicleFleet)
+  ) {
+    return {
+      valid: false,
+      message: "Use apenas valores maiores ou iguais a zero."
+    };
+  }
+
+  const itemLengthAny = hasAnyPositive(itemLengths);
+  const itemWeightAll = hasAllPositive(itemWeights);
+  const itemLengthAll = hasAllPositive(itemLengths);
+  const vehicleWeightAny = hasAnyPositive(vehicleWeights);
+  const vehicleLengthAny = hasAnyPositive(vehicleLengths);
+
+  if (!itemWeightAll) {
+    return {
+      valid: false,
+      message: "Informe pesos não nulos para todas as cargas."
+    };
+  }
+
+  if (itemLengthAny && !itemLengthAll) {
+    return {
+      valid: false,
+      message: "Se informar um comprimento, informe comprimentos não nulos para todas as cargas."
+    };
+  }
+
+  if (!vehicleWeightAny) {
+    return {
+      valid: false,
+      message: "Informe ao menos um Peso Máx. não nulo na frota."
+    };
+  }
+
+  const useWeight = true;
+  const useLength = itemLengthAll && vehicleLengthAny;
+
+  return {
+    valid: true,
+    message: "pronto para calcular",
+    config: {
+      useWeight,
+      useLength,
+      useUnits: hasAnyPositive(vehicleUnits),
+      useMinCharge: hasAnyPositive(vehicleMinCharges),
+      useFleet: hasAnyPositive(vehicleFleet)
+    }
+  };
+}
+
+function buildTrips(items, vehicles, config) {
   const tripsFrom = Array.from({ length: items.length }, () => []);
 
   for (let start = 0; start < items.length; start++) {
@@ -111,16 +199,24 @@ function buildTrips(items, vehicles) {
       const nItems = end - start + 1;
 
       vehicles.forEach((vehicle, vehicleIdx) => {
-        const occupiedLength = sumL + (nItems > 1 ? (nItems - 1) * vehicle.gap : 0);
+        const occupiedLength = config.useLength
+          ? sumL + (nItems > 1 ? (nItems - 1) * vehicle.gap : 0)
+          : 0;
+        const unitsOk = !config.useUnits || nItems <= vehicle.maxUnits;
+        const weightOk = !config.useWeight || sumW <= vehicle.W;
+        const lengthOk = !config.useLength || occupiedLength <= vehicle.L;
+        const charged = config.useMinCharge
+          ? Math.max(config.useWeight ? sumW : 0, vehicle.wmin)
+          : (config.useWeight ? sumW : 0);
 
-        if (nItems <= vehicle.maxUnits && sumW <= vehicle.W && occupiedLength <= vehicle.L) {
+        if (unitsOk && weightOk && lengthOk) {
           tripsFrom[start].push({
             end,
             vehicleIdx,
-            totalW: sumW,
+            totalW: config.useWeight ? sumW : 0,
             totalL: occupiedLength,
             totalUnits: nItems,
-            charged: Math.max(sumW, vehicle.wmin)
+            charged
           });
         }
       });
@@ -135,17 +231,18 @@ function solve() {
   const vehicles = readVehicles();
   const status = document.getElementById("status-msg");
   const results = document.getElementById("results");
+  const analysis = analyzeProblem(items, vehicles);
 
-  status.textContent = "processando estados...";
-
-  if (!items.length || !vehicles.length) {
+  if (!analysis.valid) {
     results.className = "results visible";
-    results.innerHTML = '<div class="error-box">Informe ao menos uma carga e uma classe de veículo.</div>';
-    status.textContent = "entrada incompleta";
+    results.innerHTML = `<div class="error-box">${analysis.message}</div>`;
+    status.textContent = "entrada inválida";
     return;
   }
 
-  const tripsFrom = buildTrips(items, vehicles);
+  status.textContent = "processando estados...";
+
+  const tripsFrom = buildTrips(items, vehicles, analysis.config);
   const best = new Map();
   const parent = new Map();
   const statesByPos = Array.from({ length: items.length + 1 }, () => []);
@@ -161,10 +258,12 @@ function solve() {
 
       for (const trip of tripsFrom[position]) {
         const vehicleIndex = trip.vehicleIdx;
-        if (usage[vehicleIndex] >= vehicles[vehicleIndex].fleet) continue;
+        if (analysis.config.useFleet && usage[vehicleIndex] >= vehicles[vehicleIndex].fleet) continue;
 
-        const nextUsage = [...usage];
-        nextUsage[vehicleIndex] += 1;
+        const nextUsage = analysis.config.useFleet ? [...usage] : usage;
+        if (analysis.config.useFleet) {
+          nextUsage[vehicleIndex] += 1;
+        }
 
         const nextKey = `${trip.end + 1}|${nextUsage.join(",")}`;
         const increment = objective === "vehicles" ? 1 : trip.charged;
@@ -218,11 +317,11 @@ function solve() {
   }
   trips.reverse();
 
-  renderResults(results, items, vehicles, trips, bestObjectiveValue);
+  renderResults(results, items, vehicles, trips, bestObjectiveValue, analysis.config);
   status.textContent = `${trips.length} viagens · ${best.size.toLocaleString("pt-BR")} estados explorados`;
 }
 
-function renderResults(results, items, vehicles, trips, objectiveValue) {
+function renderResults(results, items, vehicles, trips, objectiveValue, config) {
   let totalW = 0;
   let totalC = 0;
 
@@ -267,9 +366,9 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
       <td><span class="vehicle-badge vc-${trip.vIdx % 6}">${vehicles[trip.vIdx].name}</span></td>
       <td>${items.slice(trip.start, trip.end + 1).map((item) => `<span class="item-chip">${item.seq}</span>`).join("")}</td>
       <td class="num">${trip.units}</td>
-      <td class="num">${trip.w.toLocaleString("pt-BR")}</td>
-      <td class="num">${trip.l.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-      <td class="num" style="color:${trip.c > trip.w ? "var(--danger)" : "inherit"}">${trip.c.toLocaleString("pt-BR")}</td>
+      <td class="num">${config.useWeight ? trip.w.toLocaleString("pt-BR") : "—"}</td>
+      <td class="num">${config.useLength ? trip.l.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "—"}</td>
+      <td class="num" style="color:${trip.c > trip.w ? "var(--red)" : "var(--peach)"}">${trip.c.toLocaleString("pt-BR")}</td>
     `;
     body.appendChild(row);
   });
@@ -281,7 +380,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
     <td>Total</td>
     <td></td>
     <td></td>
-    <td class="num">${totalW.toLocaleString("pt-BR")}</td>
+    <td class="num">${config.useWeight ? totalW.toLocaleString("pt-BR") : "—"}</td>
     <td></td>
     <td class="num">${totalC.toLocaleString("pt-BR")}</td>
   `;
@@ -308,6 +407,17 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
   results.appendChild(viz);
 }
 
+function updateSolveAvailability() {
+  const items = readItems();
+  const vehicles = readVehicles();
+  const solveButton = document.getElementById("solve");
+  const status = document.getElementById("status-msg");
+  const analysis = analyzeProblem(items, vehicles);
+
+  solveButton.disabled = !analysis.valid;
+  status.textContent = analysis.message;
+}
+
 document.getElementById("add-item").addEventListener("click", () => addItem());
 document.getElementById("add-vehicle").addEventListener("click", () => addVehicle());
 document.getElementById("solve").addEventListener("click", solve);
@@ -322,7 +432,15 @@ document.body.addEventListener("click", (event) => {
 
   if (removeItemId) removeItem(removeItemId);
   if (removeVehicleId) removeVehicle(removeVehicleId);
+  updateSolveAvailability();
+});
+
+document.body.addEventListener("input", (event) => {
+  if (event.target.matches("input")) {
+    updateSolveAvailability();
+  }
 });
 
 seedItems.forEach((item) => addItem(item.w, item.l));
 seedVehicles.forEach((vehicle) => addVehicle(vehicle.name, vehicle.maxUnits, vehicle.W, vehicle.L, vehicle.wmin, vehicle.gap, vehicle.fleet));
+updateSolveAvailability();

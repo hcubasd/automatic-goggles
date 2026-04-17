@@ -234,6 +234,12 @@ input:focus {
   background: var(--rosewater);
 }
 
+.btn-solve:disabled {
+  background: var(--surface-1);
+  color: var(--overlay-1);
+  cursor: not-allowed;
+}
+
 .status-msg {
   margin-left: auto;
   font-family: var(--mono);
