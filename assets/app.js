@@ -1,8 +1,8 @@
 let objective = "cost";
 let itemId = 0;
 let vehicleId = 0;
-const SUPABASE_URL = "https://lbzpelfsuadhrmyhjzgh.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fctgVRED2YyUZOSUCNT25A_C26zFdKf";
+const SUPABASE_URL = "https://brddxfnuoyuhjmndkrqz.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Y9wMWZYxMLVALI__ZKqNZA_u3wrqVCu";
 const APP_VERSION = "github-pages-direct-write";
 
 const seedItems = [
