@@ -205,10 +205,10 @@ input:focus {
 }
 
 .obj-btn.active {
-  background: var(--rosewater);
+  background: var(--peach);
   color: var(--base);
   font-weight: 600;
-  border-right-color: rgba(220, 138, 120, 0.35);
+  border-right-color: rgba(254, 100, 11, 0.35);
 }
 
 .btn-solve {
