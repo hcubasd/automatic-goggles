@@ -140,7 +140,7 @@ function solve() {
 
   if (!items.length || !vehicles.length) {
     results.className = "results visible";
-    results.innerHTML = '<div class="error-box">Informe ao menos uma carga e uma classe de veiculo.</div>';
+    results.innerHTML = '<div class="error-box">Informe ao menos uma carga e uma classe de veículo.</div>';
     status.textContent = "entrada incompleta";
     return;
   }
@@ -204,8 +204,8 @@ function solve() {
   results.className = "results visible";
 
   if (!finalKey) {
-    results.innerHTML = '<div class="error-box">Nenhuma solucao viavel para a configuracao informada.</div>';
-    status.textContent = "sem solucao";
+    results.innerHTML = '<div class="error-box">Nenhuma solução viável para a configuração informada.</div>';
+    status.textContent = "sem solução";
     return;
   }
 
@@ -231,10 +231,10 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
   header.innerHTML = `
     <div>
       <p class="eyebrow">Resultado</p>
-      <h3>Alocacao reconstruida a partir do estado otimo</h3>
+      <h3>Alocação reconstruída a partir do estado ótimo</h3>
     </div>
     <div class="results-meta">
-      objetivo = ${objective === "vehicles" ? "menos veiculos" : "menor custo"} · valor = ${objectiveValue.toLocaleString("pt-BR")}
+      objetivo = ${objective === "vehicles" ? "menos veículos" : "menor custo"} · valor = ${objectiveValue.toLocaleString("pt-BR")}
     </div>
   `;
   results.appendChild(header);
@@ -245,7 +245,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
     <thead>
       <tr>
         <th>#</th>
-        <th>Veiculo</th>
+        <th>Veículo</th>
         <th>Cargas</th>
         <th class="num">Unidades</th>
         <th class="num">Peso Real</th>
@@ -291,7 +291,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
 
   const viz = document.createElement("div");
   viz.className = "seq-viz";
-  viz.innerHTML = "<h4>Visualizacao da sequencia particionada</h4>";
+  viz.innerHTML = "<h4>Visualização da sequência particionada</h4>";
 
   const bar = document.createElement("div");
   bar.className = "seq-bar";
