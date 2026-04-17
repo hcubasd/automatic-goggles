@@ -135,6 +135,10 @@ input[type="text"] {
   outline: none;
 }
 
+input[id^="vn-"] {
+  color: var(--green);
+}
+
 input:focus {
   border-color: var(--peach);
   box-shadow: 0 0 0 3px rgba(254, 100, 11, 0.14);
