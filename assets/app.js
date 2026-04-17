@@ -264,7 +264,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${index + 1}</td>
-      <td><span class="vehicle-badge vc-${trip.vIdx % 5}">${vehicles[trip.vIdx].name}</span></td>
+      <td><span class="vehicle-badge vc-${trip.vIdx % 6}">${vehicles[trip.vIdx].name}</span></td>
       <td>${items.slice(trip.start, trip.end + 1).map((item) => `<span class="item-chip">${item.seq}</span>`).join("")}</td>
       <td class="num">${trip.units}</td>
       <td class="num">${trip.w.toLocaleString("pt-BR")}</td>
@@ -298,7 +298,7 @@ function renderResults(results, items, vehicles, trips, objectiveValue) {
 
   trips.forEach((trip) => {
     const segment = document.createElement("div");
-    segment.className = `seq-segment seg-${trip.vIdx % 5}`;
+    segment.className = `seq-segment seg-${trip.vIdx % 6}`;
     segment.style.flex = trip.end - trip.start + 1;
     segment.textContent = vehicles[trip.vIdx].name;
     bar.appendChild(segment);
