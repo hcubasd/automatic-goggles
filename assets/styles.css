@@ -116,6 +116,13 @@ main {
   font-size: 10px;
   text-transform: uppercase;
   border-bottom: 2px solid var(--surface-2);
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.data-table th.inactive-col {
+  color: var(--overlay-0);
+  background: rgba(156, 160, 176, 0.08);
+  border-bottom-color: var(--surface-0);
 }
 
 .data-table td:first-child {

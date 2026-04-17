@@ -483,9 +483,27 @@ function updateSolveAvailability() {
   const solveButton = document.getElementById("solve");
   const status = document.getElementById("status-msg");
   const analysis = analyzeProblem(items, vehicles);
+  const itemLengths = items.map((item) => item.l);
+  const vehicleUnits = vehicles.map((vehicle) => vehicle.maxUnits);
+  const vehicleMinCharges = vehicles.map((vehicle) => vehicle.wmin);
+  const vehicleLengths = vehicles.map((vehicle) => vehicle.L);
+  const vehicleGaps = vehicles.map((vehicle) => vehicle.gap);
+  const vehicleFleet = vehicles.map((vehicle) => vehicle.fleet);
 
   solveButton.disabled = !analysis.valid;
   status.textContent = analysis.message;
+
+  document.getElementById("item-weight-header")?.classList.remove("inactive-col");
+  document.getElementById("vehicle-weight-header")?.classList.remove("inactive-col");
+
+  document.getElementById("item-length-header")?.classList.toggle("inactive-col", !hasAnyPositive(itemLengths));
+  document.getElementById("vehicle-length-header")?.classList.toggle("inactive-col", !hasAnyPositive(vehicleLengths));
+  document.getElementById("vehicle-units-header")?.classList.toggle("inactive-col", !hasAnyPositive(vehicleUnits));
+  document.getElementById("vehicle-min-charge-header")?.classList.toggle("inactive-col", !hasAnyPositive(vehicleMinCharges));
+  document.getElementById("vehicle-fleet-header")?.classList.toggle("inactive-col", !hasAnyPositive(vehicleFleet));
+
+  const lengthsIgnored = !hasAnyPositive(itemLengths) || !hasAnyPositive(vehicleLengths);
+  document.getElementById("vehicle-gap-header")?.classList.toggle("inactive-col", lengthsIgnored || !hasAnyPositive(vehicleGaps));
 }
 
 document.getElementById("add-item").addEventListener("click", () => addItem());
